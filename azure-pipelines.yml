@@ -11,7 +11,7 @@ resources:
 #### Staging Docker image ####
 
 stages:
-- stage: Build staging
+- stage: Build_staging
   variables:
   - group: staging
   displayName: Build and push staging
