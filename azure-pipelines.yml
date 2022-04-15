@@ -1,0 +1,56 @@
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- master
+
+resources:
+- repo: self
+  clean: true
+#### Staging Docker image ####
+
+stages:
+- stage: Build staging
+  variables:
+  - group: staging
+  displayName: Build and push staging
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - checkout: self
+      clean: true
+      displayName: Creating staging .env file
+    - bash: |
+        sudo chmod 666 /var/run/docker.sock
+        echo "# Host configuration
+        PORT=8080
+        HOST=0.0.0.0
+        #Postgres configuration
+        PGHOST=staging-kf-postgres-flex-server.postgres.database.azure.com
+        PGUSERNAME=postgres
+        PGDATABASE=postgres
+        PGPASSWORD=$(staging_postgres_pass)
+        PGPORT=5432
+              
+        HOST_URL=http://$(staging_lb_ip):8080
+        COOKIE_ENCRYPT_PWD=superAwesomePasswordStringThatIsAtLeast32CharactersLong!
+        NODE_ENV=development
+              
+        # Okta configuration
+        OKTA_ORG_URL=https://dev-98291338.okta.com
+        OKTA_CLIENT_ID=$(staging_okta_id)
+        OKTA_CLIENT_SECRET=$(staging_okta_secret)" > ./.env
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+- stage: Build Production
