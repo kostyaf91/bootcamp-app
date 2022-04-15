@@ -1,0 +1,11 @@
+trigger:
+- master
+
+resources:
+- repo: self
+  clean: true
+############### Staging docker image:
+stages:
+- stage: Build_staging_dockerfile
+  variables:
+  - group: staging
