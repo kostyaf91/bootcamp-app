@@ -31,7 +31,7 @@
         reauthorize: yes
     - name: pull an image
       docker_image:
-        name: kostyabootcampimage:latest
+        name: kostyaf91bootcampreg.azurecr.io/kostyabootcampimage:latest
         source: pull
 
     - name: Stop running container if present
