@@ -166,10 +166,7 @@ stages:
   jobs:
   - job: waitForValidation
     displayName: Wait for external validation
-    pool: 
-      name: bootcampApp-pool
-      demands:
-      - agent.name -equals prod-agent
+    pool: bootcampApp-pool
     timeoutInMinutes: 180 # 6 hours
     steps:
     - task: ManualValidation@0
