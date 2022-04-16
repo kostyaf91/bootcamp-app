@@ -18,7 +18,7 @@ variables:
 
 
 stages:
-- stage: Build
+- stage: CI
   displayName: Build and push stage
   jobs:
   - job: Build
@@ -36,3 +36,15 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+- stage: CD staging
+  displayName: CD
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      name: bootcampApp-pool
+
+    steps:
+    - task: CmdLine@2
+      inputs:
+        script: 'docker pull $(containerRegistry)/$(imageRepository):$(tag)'
