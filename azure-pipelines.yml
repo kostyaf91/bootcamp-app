@@ -45,6 +45,14 @@ stages:
       name: bootcampApp-pool
 
     steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'Azure Pass - Sponsorship(3b9049a9-f773-49c9-998f-740b2f2c2c46)'
+        scriptType: 'ps'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az --version
+          az account show
     - task: CmdLine@2
       inputs:
         script: 'docker pull $(containerRegistry)/$(imageRepository):$(tag)'
