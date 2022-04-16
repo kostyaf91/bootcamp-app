@@ -31,7 +31,7 @@
         reauthorize: yes
     - name: pull an image
       docker_image:
-        name: kostyaf91bootcampreg.azurecr.io/kostyabootcampimage:latest
+        name: "kostyaf91bootcampreg.azurecr.io/kostyabootcampimage:latest{{ env }}"
         source: pull
 
     - name: Stop running container if present
@@ -39,4 +39,4 @@
       ignore_errors: yes
 
     - name: Start weight app container
-      shell: docker run -d --restart=always -p 8080:8080 kostyaf91bootcampreg.azurecr.io/kostyabootcampimage:latest
+      shell: "docker run -d --restart=always -p 8080:8080 kostyaf91bootcampreg.azurecr.io/kostyabootcampimage:latest{{ env }}"
