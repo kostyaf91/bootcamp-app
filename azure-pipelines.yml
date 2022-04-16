@@ -156,7 +156,7 @@ stages:
 ### Deploying to production ###
 - stage: Deploy_to_prod
   variables:
-  - group: staging
+  - group: prod
   - group: repo
   displayName: Run Ansible to deploy image
   pool: 
