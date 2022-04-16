@@ -192,5 +192,5 @@ stages:
         targetType: 'inline'
         script: |
           ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=Prod"
-      displayName: Deploying the staging container
         workingDirectory: $(Build.SourcesDirectory)/ansible/
+      displayName: Deploying the staging container
