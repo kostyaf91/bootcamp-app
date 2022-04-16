@@ -32,12 +32,6 @@ stages:
   - job: Build
     displayName: Build and Push
     steps:
-    - task: DownloadGitHubRelease@0
-      inputs:
-        connection: 'new connection'
-        userRepository: 'kostyaf91/weight_tracker_ansible'
-        defaultVersionType: 'latest'
-        downloadPath: '$(System.ArtifactsDirectory)'
     - bash: |
         sudo chmod 666 /var/run/docker.sock
         echo "# Host configuration
@@ -81,12 +75,6 @@ stages:
   - job: Build
     displayName: Build and Push
     steps:
-    - task: DownloadGitHubRelease@0
-      inputs:
-        connection: 'new connection'
-        userRepository: 'kostyaf91/weight_tracker_ansible'
-        defaultVersionType: 'latest'
-        downloadPath: '$(System.ArtifactsDirectory)'
     - bash: |
         sudo chmod 666 /var/run/docker.sock
         echo "# Host configuration
@@ -149,6 +137,12 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
+          sudo git init
+          sudo git clone https://github.com/kostyaf91/weight_tracker_ansible.git
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
           ansible-playbook playbook.yaml -i inventory.ini
         workingDirectory: $(Build.SourcesDirectory)/ansible/
       displayName: Deploying the staging container
@@ -165,6 +159,12 @@ stages:
   - job: Ansible
     displayName: Ansible
     steps:
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          sudo git init
+          sudo git clone https://github.com/kostyaf91/weight_tracker_ansible.git
     - task: Bash@3
       inputs:
         targetType: 'inline'
