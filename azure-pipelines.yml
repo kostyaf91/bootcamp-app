@@ -141,6 +141,10 @@ stages:
     - task: Bash@3
       inputs:
         targetType: 'inline'
+        script: 'echo yes | sudo apt-get install ansible'
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
         script: |
           ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass)"
         workingDirectory: $(Build.SourcesDirectory)/ansible/
@@ -175,6 +179,10 @@ stages:
           tag=$(Build.BuildId)
           ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" > $(Build.SourcesDirectory)/ansible/inventory.ini
       displayName: Creating the ini file
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: 'echo yes | sudo apt-get install ansible'
     - task: Bash@3
       inputs:
         targetType: 'inline'
