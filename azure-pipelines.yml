@@ -150,7 +150,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=$(env)"
+          ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=Staging"
         workingDirectory: $(Build.SourcesDirectory)/ansible/
       displayName: Deploying the staging container
 ### Deploying to production ###
@@ -191,6 +191,6 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=$(env)"
+          ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=Prod"
         workingDirectory: $(Build.SourcesDirectory)/ansible/
       displayName: Deploying the staging container
