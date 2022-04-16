@@ -18,15 +18,40 @@ variables:
 
 
 stages:
-- stage: CI
-  displayName: Build and push stage
+- stage: CI_build_image_staging
+  variables:
+  - group: staging
+  displayName: Build and push + .env
+  pool: 
+    name: bootcampApp-pool
+    demands:
+     - agent.name -equals staging-agent
   jobs:
   - job: Build
-    displayName: Build
-    pool:
-      name: bootcampApp-pool
+    displayName: Build and Push
 
     steps:
+    - bash: |
+        sudo chmod 666 /var/run/docker.sock
+        echo "# Host configuration
+        PORT=8080
+        HOST=0.0.0.0
+        #Postgres configuration
+        PGHOST=staging-kf-postgres-flex-server.postgres.database.azure.com
+        PGUSERNAME=postgres
+        PGDATABASE=postgres
+        PGPASSWORD=$(staging-postgres-pass)
+        PGPORT=5432
+              
+        HOST_URL=http://$(staging-lb-ip):8080
+        COOKIE_ENCRYPT_PWD=superAwesomePasswordStringThatIsAtLeast32CharactersLong!
+        NODE_ENV=development
+              
+        # Okta configuration
+        OKTA_ORG_URL=https://dev-98291338.okta.com
+        OKTA_CLIENT_ID=$(staging-okta-id)
+        OKTA_CLIENT_SECRET=$(staging-okta-secret)" > ./.env
+        displayName: Creating staging .env
     - task: Docker@2
       displayName: Build and push an image to container registry
       inputs:
