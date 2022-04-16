@@ -51,7 +51,7 @@ stages:
         OKTA_ORG_URL=https://dev-98291338.okta.com
         OKTA_CLIENT_ID=$(staging-okta-id)
         OKTA_CLIENT_SECRET=$(staging-okta-secret)" > ./.env
-        displayName: Creating staging .env
+        displayName: 'Creating staging .env'
     - task: Docker@2
       displayName: Build and push an image to container registry
       inputs:
