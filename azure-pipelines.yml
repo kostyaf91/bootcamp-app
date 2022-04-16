@@ -168,8 +168,11 @@ stages:
     displayName: Ansible
     steps:
     - task: ManualValidation@0
+      timeoutInMinutes: 90
       inputs:
-        notifyUsers: 'kostya.devops002@outlook.com'
+        notifyUsers: kostya.devops002@outlook.com
+        instructions: 'Please validate the build configuration and resume'
+        onTimeout: reject
     - task: Bash@3
       inputs:
         targetType: 'inline'
