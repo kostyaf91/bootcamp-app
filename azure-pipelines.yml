@@ -106,7 +106,6 @@ stages:
           $(tag)
 ### Deploying to staging ###
 - stage: Deploy_to_staging
-  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   variables:
   - group: staging
   displayName: Run Ansible to deploy image
