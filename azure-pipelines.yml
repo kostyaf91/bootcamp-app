@@ -50,7 +50,7 @@ stages:
         targetType: 'inline'
         script: |
           sudo apt-get update
-          sudo apt-get install azure-cli
+          echo yes|sudo apt-get install azure-cli
     - task: AzureCLI@2
       inputs:
         azureSubscription: 'Azure Pass - Sponsorship(3b9049a9-f773-49c9-998f-740b2f2c2c46)'
