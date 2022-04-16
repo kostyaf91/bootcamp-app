@@ -167,6 +167,9 @@ stages:
   - job: Ansible
     displayName: Ansible
     steps:
+    - task: ManualValidation@0
+      inputs:
+        notifyUsers: 'kostya.devops002@outlook.com'
     - task: Bash@3
       inputs:
         targetType: 'inline'
