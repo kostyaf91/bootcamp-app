@@ -137,6 +137,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
+          sudo mkdir ansible && cd ansible
           sudo git init
           sudo git clone https://github.com/kostyaf91/weight_tracker_ansible.git
     - task: Bash@3
@@ -163,6 +164,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
+          sudo mkdir ansible && cd ansible
           sudo git init
           sudo git clone https://github.com/kostyaf91/weight_tracker_ansible.git
     - task: Bash@3
