@@ -79,6 +79,10 @@ stages:
   - job: Build
     displayName: Build and Push
     steps:
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: 'sudo apt-get install sshpass'
     - bash: |
         sudo chmod 666 /var/run/docker.sock
         echo "# Host configuration
