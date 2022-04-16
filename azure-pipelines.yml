@@ -61,3 +61,4 @@ stages:
     - task: CmdLine@2
       inputs:
         script: 'docker pull $(containerRegistry)/$(imageRepository):$(tag)'
+    
