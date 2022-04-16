@@ -140,13 +140,14 @@ stages:
           sudo mkdir ansible && cd ansible
           sudo git init
           sudo git clone https://github.com/kostyaf91/weight_tracker_ansible.git
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: |
-          ansible-playbook playbook.yaml -i inventory.ini
-        workingDirectory: $(Build.SourcesDirectory)/ansible/
-      displayName: Deploying the staging container
+        workingDirectory: $(Build.SourcesDirectory)/
+#    - task: Bash@3
+#      inputs:
+#        targetType: 'inline'
+#        script: |
+#          ansible-playbook playbook.yaml -i inventory.ini
+#        workingDirectory: $(Build.SourcesDirectory)/ansible/
+#      displayName: Deploying the staging container
 ### Deploying to production ###
 - stage: Deploy_to_prod
   variables:
@@ -167,6 +168,7 @@ stages:
           sudo mkdir ansible && cd ansible
           sudo git init
           sudo git clone https://github.com/kostyaf91/weight_tracker_ansible.git
+        workingDirectory: $(Build.SourcesDirectory)/
     - task: Bash@3
       inputs:
         targetType: 'inline'
@@ -183,10 +185,10 @@ stages:
           tag=$(Build.BuildId)
           ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" > $(Build.SourcesDirectory)/ansible/inventory.ini
       displayName: Creating the inv file
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: |
-          ansible-playbook playbook.yaml -i inventory.ini
-        workingDirectory: $(Build.SourcesDirectory)/ansible/
-      displayName: Deploying the staging container
+#    - task: Bash@3
+#      inputs:
+#        targetType: 'inline'
+#        script: |
+#          ansible-playbook playbook.yaml -i inventory.ini
+#        workingDirectory: $(Build.SourcesDirectory)/ansible/
+#      displayName: Deploying the staging container
