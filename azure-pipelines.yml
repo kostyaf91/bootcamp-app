@@ -65,7 +65,8 @@ stages:
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
-          "$(tag)Staging"
+          $(tag)
+          $(env)
 ### Build image to production ###
 - stage: CI_build_image_prod
   variables:
@@ -112,7 +113,8 @@ stages:
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
-          "$(tag)Prod"
+          $(tag)
+          $(env)
 ### Deploying to staging ###
 - stage: Deploy_to_staging
   variables:
@@ -150,7 +152,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=staging"
+          ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=$(env)"
         workingDirectory: $(Build.SourcesDirectory)/ansible/
       displayName: Deploying the staging container
 ### Deploying to production ###
@@ -191,6 +193,6 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=prod"
+          ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=$(env)"
         workingDirectory: $(Build.SourcesDirectory)/ansible/
       displayName: Deploying the staging container
