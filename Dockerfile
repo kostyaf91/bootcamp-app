@@ -1,6 +1,6 @@
 FROM node:14-alpine
 
-WORKDIR ./
+WORKDIR /home/ubuntu/myagent/_work/1/s/
 
 COPY . .
 
