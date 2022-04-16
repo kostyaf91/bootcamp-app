@@ -36,7 +36,7 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
-- stage: CD-staging
+- stage: CD_staging
   displayName: CD
   jobs:
   - job: Build
