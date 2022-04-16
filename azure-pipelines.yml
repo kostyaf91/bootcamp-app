@@ -164,18 +164,6 @@ stages:
     demands:
      - agent.name -equals prod-agent
   jobs:
-  - job: waitForValidation
-    displayName: Wait for external validation
-    pool: bootcampApp-pool
-    timeoutInMinutes: 180 # 6 hours
-    steps:
-    - task: ManualValidation@0
-      timeoutInMinutes: 90 # 3 hours
-      inputs:
-        notifyUsers: |
-          kostya.devops002@outlook.com
-        instructions: 'Please validate the build configuration and resume'
-        onTimeout: reject
   - job: Ansible
     displayName: Ansible
     steps:
