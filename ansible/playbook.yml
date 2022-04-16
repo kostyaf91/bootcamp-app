@@ -39,4 +39,4 @@
       ignore_errors: yes
 
     - name: Start weight app container
-      shell: docker run -d --restart=always -p 8080:8080 kostyabootcampimage:latest
+      shell: docker run -d --restart=always -p 8080:8080 kostyaf91bootcampreg.azurecr.io/kostyabootcampimage:latest
