@@ -22,14 +22,14 @@ stages:
 - stage: CI_build_image_staging
   variables:
   - group: staging
-  displayName: Build and push + .env
+  displayName: Build and push + .env staging
   pool: 
     name: bootcampApp-pool
     demands:
      - agent.name -equals staging-agent
   jobs:
   - job: Build
-    displayName: Build and Push
+    displayName: Build and Push 
     steps:
     - bash: |
         sudo chmod 666 /var/run/docker.sock
@@ -65,7 +65,7 @@ stages:
 - stage: CI_build_image_prod
   variables:
   - group: prod
-  displayName: Build and push + .env
+  displayName: Build and push + .env prod
   pool: 
     name: bootcampApp-pool
     demands:
