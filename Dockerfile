@@ -1,6 +1,6 @@
 FROM node:14-alpine
 
-WORKDIR /home/ubuntu/node-weight-tracker
+WORKDIR ./
 
 COPY . .
 
