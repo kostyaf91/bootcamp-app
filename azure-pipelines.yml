@@ -31,13 +31,15 @@ stages:
   - job: Build
     displayName: Build and Push
     steps:
-    - task: DownloadGitHubRelease@0
+    - task: GitHubRelease@1
       inputs:
-        connection: 'new connection'
-        userRepository: 'kostyaf91/weight_tracker_ansible'
-        defaultVersionType: 'latest'
-        itemPattern: '**'
-        downloadPath: '$(System.ArtifactsDirectory)'
+        gitHubConnection: 'new connection'
+        repositoryName: 'kostyaf91/weight_tracker_ansible'
+        action: 'create'
+        target: '$(Build.BuildNumber)'
+        tagSource: 'gitTag'
+        changeLogCompareToRelease: 'lastFullRelease'
+        changeLogType: 'commitBased'
     - bash: |
         sudo chmod 666 /var/run/docker.sock
         echo "# Host configuration
@@ -81,13 +83,15 @@ stages:
   - job: Build
     displayName: Build and Push
     steps:
-    - task: DownloadGitHubRelease@0
+    - task: GitHubRelease@1
       inputs:
-        connection: 'new connection'
-        userRepository: 'kostyaf91/weight_tracker_ansible'
-        defaultVersionType: 'latest'
-        itemPattern: '**'
-        downloadPath: '$(System.ArtifactsDirectory)'
+        gitHubConnection: 'new connection'
+        repositoryName: 'kostyaf91/weight_tracker_ansible'
+        action: 'create'
+        target: '$(Build.BuildNumber)'
+        tagSource: 'gitTag'
+        changeLogCompareToRelease: 'lastFullRelease'
+        changeLogType: 'commitBased'
     - bash: |
         sudo chmod 666 /var/run/docker.sock
         echo "# Host configuration
