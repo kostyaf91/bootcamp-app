@@ -52,7 +52,8 @@ stages:
         PGPASSWORD=$(staging-postgres-pass)
         PGPORT=5432
               
-        HOST_URL=http://$(staging-lb-ip):8080
+        HOST_URL=http://20.106.97.129:8080
+#        HOST_URL=http://$(staging-lb-ip):8080
         COOKIE_ENCRYPT_PWD=superAwesomePasswordStringThatIsAtLeast32CharactersLong!
         NODE_ENV=development
               
