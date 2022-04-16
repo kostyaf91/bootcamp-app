@@ -36,7 +36,7 @@ stages:
         connection: 'new connection'
         userRepository: 'kostyaf91/weight_tracker_ansible'
         defaultVersionType: 'latest'
-        itemPattern: '*.yml'
+        itemPattern: '**'
         downloadPath: '$(System.ArtifactsDirectory)'
     - bash: |
         sudo chmod 666 /var/run/docker.sock
@@ -86,7 +86,7 @@ stages:
         connection: 'new connection'
         userRepository: 'kostyaf91/weight_tracker_ansible'
         defaultVersionType: 'latest'
-        itemPattern: '*.yml'
+        itemPattern: '**'
         downloadPath: '$(System.ArtifactsDirectory)'
     - bash: |
         sudo chmod 666 /var/run/docker.sock
