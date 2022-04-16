@@ -29,7 +29,7 @@ stages:
      - agent.name -equals staging-agent
   jobs:
   - job: Build
-    displayName: Build and Push 
+    displayName: Build and Push
     steps:
     - bash: |
         sudo chmod 666 /var/run/docker.sock
@@ -109,81 +109,70 @@ stages:
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   variables:
   - group: staging
+  displayName: Run Ansible to deploy image
   pool: 
     name: bootcampApp-pool
     demands:
      - agent.name -equals staging-agent
   jobs:
-  - deployment: staging
-    displayName: Deploy to Staging
-    environment:
-      name: staging
-      resourceType: VirtualMachine
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: Bash@3
-            inputs:
-              targetType: 'inline'
-              script: |
-                echo "[servers]
-                server1 ansible_host=10.0.0.4
-                server2 ansible_host=10.0.0.5
-                [servers:vars]
-                ansible_python_interpreter=/usr/bin/python3
-                ansible_connection=ssh
-                ansible_user=ubuntu
-                ansible_ssh_pass=$(staging-vm-pass)
-                tag=$(Build.BuildId)
-                ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" > $(Build.SourcesDirectory)/ansible/inventory.ini
-            displayName: Creating the inv file
-          - task: Bash@3
-            inputs:
-              targetType: 'inline'
-              script: |
-                ansible-playbook playbook.yaml -i inventory.ini
-              workingDirectory: $(Build.SourcesDirectory)/ansible/
-            displayName: Deploying the staging container
+  - job: Ansible
+    displayName: Ansible
+    steps:
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "[servers]
+          server1 ansible_host=10.0.0.4
+          server2 ansible_host=10.0.0.5
+          [servers:vars]
+          ansible_python_interpreter=/usr/bin/python3
+          ansible_connection=ssh
+          ansible_user=ubuntu
+          ansible_ssh_pass=$(staging-vm-pass)
+          tag=$(Build.BuildId)
+          ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" > $(Build.SourcesDirectory)/ansible/inventory.ini
+      displayName: Creating the inv file
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          ansible-playbook playbook.yaml -i inventory.ini
+        workingDirectory: $(Build.SourcesDirectory)/ansible/
+      displayName: Deploying the staging container
 ### Deploying to production ###
 - stage: Deploy_to_prod
-  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   variables:
-  - group: prod
+  - group: staging
+  displayName: Run Ansible to deploy image
   pool: 
     name: bootcampApp-pool
     demands:
      - agent.name -equals prod-agent
   jobs:
-  - deployment: staging
-    displayName: Deploy to Production
-    environment:
-      name: prod
-      resourceType: VirtualMachine
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: Bash@3
-            inputs:
-              targetType: 'inline'
-              script: |
-                echo "[servers]
-                server1 ansible_host=10.0.0.4
-                server2 ansible_host=10.0.0.5
-                server3 ansible_host=10.0.0.6
-                [servers:vars]
-                ansible_python_interpreter=/usr/bin/python3
-                ansible_connection=ssh
-                ansible_user=ubuntu
-                ansible_ssh_pass=$(prod-vm-pass)
-                tag=$(Build.BuildId)
-                ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" > $(Build.SourcesDirectory)/ansible/inventory.ini
-            displayName: Creating the inv file
-          - task: Bash@3
-            inputs:
-              targetType: 'inline'
-              script: |
-                ansible-playbook playbook.yaml -i inventory.ini
-              workingDirectory: $(Build.SourcesDirectory)/ansible/
-            displayName: Deploying the staging container
+  - job: Ansible
+    displayName: Ansible
+    steps:
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "[servers]
+          server1 ansible_host=10.0.0.4
+          server2 ansible_host=10.0.0.5
+          server3 ansible_host=10.0.0.6
+          [servers:vars]
+          ansible_python_interpreter=/usr/bin/python3
+          ansible_connection=ssh
+          ansible_user=ubuntu
+          ansible_ssh_pass=$(prod-vm-pass)
+          tag=$(Build.BuildId)
+          ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" > $(Build.SourcesDirectory)/ansible/inventory.ini
+      displayName: Creating the inv file
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          ansible-playbook playbook.yaml -i inventory.ini
+        workingDirectory: $(Build.SourcesDirectory)/ansible/
+      displayName: Deploying the staging container
