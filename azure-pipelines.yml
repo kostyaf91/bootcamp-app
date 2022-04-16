@@ -133,15 +133,7 @@ stages:
           ansible_ssh_pass=$(staging-vm-pass)
           tag=$(Build.BuildId)
           ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" > $(Build.SourcesDirectory)/ansible/inventory.ini
-      displayName: Creating the inv file
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: |
-          sudo mkdir ansible && cd ansible
-          sudo git init
-          sudo git clone https://github.com/kostyaf91/weight_tracker_ansible.git
-        workingDirectory: $(Build.SourcesDirectory)/
+      displayName: Creating the ini file
     - task: Bash@3
       inputs:
         targetType: 'inline'
@@ -167,14 +159,6 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          sudo mkdir ansible && cd ansible
-          sudo git init
-          sudo git clone https://github.com/kostyaf91/weight_tracker_ansible.git
-        workingDirectory: $(Build.SourcesDirectory)/
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: |
           echo "[servers]
           server1 ansible_host=10.0.0.4
           server2 ansible_host=10.0.0.5
@@ -186,7 +170,7 @@ stages:
           ansible_ssh_pass=$(prod-vm-pass)
           tag=$(Build.BuildId)
           ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" > $(Build.SourcesDirectory)/ansible/inventory.ini
-      displayName: Creating the inv file
+      displayName: Creating the ini file
     - task: Bash@3
       inputs:
         targetType: 'inline'
