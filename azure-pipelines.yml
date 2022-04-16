@@ -65,7 +65,6 @@ stages:
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
-          $(tag)
           Staging
 ### Build image to production ###
 - stage: CI_build_image_prod
@@ -113,7 +112,6 @@ stages:
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
-          $(tag)
           Prod
 ### Deploying to staging ###
 - stage: Deploy_to_staging
