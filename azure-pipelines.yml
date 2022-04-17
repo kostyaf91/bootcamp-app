@@ -66,6 +66,7 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           Staging
+
 ### Build image to production ###
 - stage: CI_build_image_prod
   variables:
@@ -113,6 +114,7 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           Prod
+
 ### Deploying to staging ###
 - stage: Deploy_to_staging
   variables:
@@ -124,35 +126,40 @@ stages:
     demands:
      - agent.name -equals staging-agent
   jobs:
-  - job: Ansible
-    displayName: Ansible
-    steps:
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: |
-          echo "[servers]
-          server1 ansible_host=10.0.0.4
-          server2 ansible_host=10.0.0.5
-          [servers:vars]
-          ansible_python_interpreter=/usr/bin/python3
-          ansible_connection=ssh
-          ansible_user=ubuntu
-          ansible_ssh_pass=$(staging-vm-pass)
-          tag=$(Build.BuildId)
-          ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" > $(Build.SourcesDirectory)/ansible/inventory.ini
-      displayName: Creating the ini file
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: 'echo yes | sudo apt-get install ansible'
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: |
-          ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=Staging"
-        workingDirectory: $(Build.SourcesDirectory)/ansible/
-      displayName: Deploying the staging container
+  - deployment: Ansible_and_environment
+    displayName: Ansible 
+    environment: 'staging'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "[servers]
+                server1 ansible_host=10.0.0.4
+                server2 ansible_host=10.0.0.5
+                [servers:vars]
+                ansible_python_interpreter=/usr/bin/python3
+                ansible_connection=ssh
+                ansible_user=ubuntu
+                ansible_ssh_pass=$(staging-vm-pass)
+                tag=$(Build.BuildId)
+                ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" > $(Build.SourcesDirectory)/ansible/inventory.ini
+            displayName: Creating the ini file
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: 'echo yes | sudo apt-get install ansible'
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: |
+                ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=Staging"
+              workingDirectory: $(Build.SourcesDirectory)/ansible/
+            displayName: Deploying the staging container
+
 ### Deploying to production ###
 - stage: Deploy_to_prod
   variables:
@@ -164,33 +171,37 @@ stages:
     demands:
      - agent.name -equals prod-agent
   jobs:
-  - job: Ansible
-    displayName: Ansible
-    steps:
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: |
-          echo "[servers]
-          server1 ansible_host=10.0.0.4
-          server2 ansible_host=10.0.0.5
-          server3 ansible_host=10.0.0.6
-          [servers:vars]
-          ansible_python_interpreter=/usr/bin/python3
-          ansible_connection=ssh
-          ansible_user=ubuntu
-          ansible_ssh_pass=$(prod-vm-pass)
-          tag=$(Build.BuildId)
-          ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" > $(Build.SourcesDirectory)/ansible/inventory.ini
-      displayName: Creating the ini file
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: 'echo yes | sudo apt-get install ansible'
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: |
-          ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=Prod"
-        workingDirectory: $(Build.SourcesDirectory)/ansible/
-      displayName: Deploying the staging container
+  - deployment: Ansible_and_environment
+    displayName: Ansible 
+    environment: 'staging'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "[servers]
+                server1 ansible_host=10.0.0.4
+                server2 ansible_host=10.0.0.5
+                server3 ansible_host=10.0.0.6
+                [servers:vars]
+                ansible_python_interpreter=/usr/bin/python3
+                ansible_connection=ssh
+                ansible_user=ubuntu
+                ansible_ssh_pass=$(prod-vm-pass)
+                tag=$(Build.BuildId)
+                ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" > $(Build.SourcesDirectory)/ansible/inventory.ini
+            displayName: Creating the ini file
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: 'echo yes | sudo apt-get install ansible'
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: |
+                ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=Prod"
+              workingDirectory: $(Build.SourcesDirectory)/ansible/
+            displayName: Deploying the staging container
