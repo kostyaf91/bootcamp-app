@@ -5,8 +5,6 @@ trigger:
 pool: bootcampApp-pool
 
 variables:
-- group: staging
-- group: prod
 - group: repo
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '783185f1-f3b8-40c5-8d47-f8df1bef5828'
@@ -63,7 +61,7 @@ stages:
               playbookPathOnAgentMachine: 'weight_tracker_ansible/playbook.yml'
               inventoriesAgentMachine: 'file'
               inventoryFileOnAgentMachine: 'weight_tracker_ansible/inventories/staging/inventory'
-              args: '-e "staging-lb-ip=$(staging-lb-ip) staging-okta-id=$(staging-okta-id) staging-okta-secret=$(staging-okta-secret) staging-postgres-pass=$(staging-postgres-pass) staging-vm-pass=$(staging-vm-pass) IP1=$(IP1) IP2=$(IP2) acrLogin=$(acrLogin) acrPass=$(acrPass) registry=$(registry) tag=$(tag)"'
+              args: '-e "lb-ip=$(lb-ip) okta-id=$(okta-id) okta-secret=$(okta-secret) postgres-pass=$(postgres-pass) vm-pass=$(vm-pass) pgHost=$(pgHost) acrLogin=$(acrLogin) acrPass=$(acrPass) registry=$(registry) tag=$(tag)"'
               failOnStdErr: false
 
 ### Deploying to production ###
@@ -71,43 +69,25 @@ stages:
   variables:
   - group: prod
   - group: repo
-  displayName: Run Ansible to deploy image
-  pool: 
-    name: bootcampApp-pool
-    demands:
-     - agent.name -equals prod-agent
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   jobs:
-  - deployment: Ansible_and_environment
-    displayName: Ansible 
-    environment: 'staging'
+  - deployment: prod
+    displayName: 'Deploy bootcamp-app' 
+    environment:
+      name: prod
+      resourceType: VirtualMachine
     strategy:
       runOnce:
         deploy:
           steps:
-          - task: Bash@3
+          - script: |
+              rm -rf weight_tracker_ansible
+              git clone https://github.com/kostyaf91/weight_tracker_ansible
+          - task: Ansible@0
             inputs:
-              targetType: 'inline'
-              script: |
-                echo "[servers]
-                server1 ansible_host=10.0.0.4
-                server2 ansible_host=10.0.0.5
-                server3 ansible_host=10.0.0.6
-                [servers:vars]
-                ansible_python_interpreter=/usr/bin/python3
-                ansible_connection=ssh
-                ansible_user=ubuntu
-                ansible_ssh_pass=$(prod-vm-pass)
-                tag=$(Build.BuildId)
-                ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" > $(Build.SourcesDirectory)/ansible/inventory.ini
-            displayName: Creating the ini file
-          - task: Bash@3
-            inputs:
-              targetType: 'inline'
-              script: 'echo yes | sudo apt-get install ansible'
-          - task: Bash@3
-            inputs:
-              targetType: 'inline'
-              script: |
-                ansible-playbook playbook.yml -i inventory.ini --extra-vars "acrLogin=$(acrLogin) acrPass=$(acrPass) env=Prod"
-              workingDirectory: $(Build.SourcesDirectory)/ansible/
-            displayName: Deploying the staging container
+              ansibleInterface: 'agentMachine'
+              playbookPathOnAgentMachine: 'weight_tracker_ansible/playbook.yml'
+              inventoriesAgentMachine: 'file'
+              inventoryFileOnAgentMachine: 'weight_tracker_ansible/inventories/prod/inventory'
+              args: '-e "lb-ip=$(lb-ip) okta-id=$(okta-id) okta-secret=$(okta-secret) postgres-pass=$(postgres-pass) vm-pass=$(vm-pass) pgHost=$(pgHost) acrLogin=$(acrLogin) acrPass=$(acrPass) registry=$(registry) tag=$(tag)"'
+              failOnStdErr: false
