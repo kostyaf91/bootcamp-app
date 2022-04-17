@@ -5,13 +5,7 @@ trigger:
 pool: bootcampApp-pool
 
 variables:
-- group: repo
-  # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: '783185f1-f3b8-40c5-8d47-f8df1bef5828'
-  imageRepository: 'kostyabootcampimage'
-  containerRegistry: 'kostyaf91bootcampreg.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
-  tag: $(Build.BuildId)
+- group: global
 
 stages:
 ### CI ###
