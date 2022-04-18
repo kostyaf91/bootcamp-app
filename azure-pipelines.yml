@@ -1,36 +1,33 @@
 trigger:
-- master
-- feature/*
-
-pool: bootcampApp-pool
-
+  branches:
+    include:
+    - master
+    - feature/*
+pool:
+  name: bootcampApp-pool
 variables:
 - group: global
-
 stages:
-### CI ###
 - stage: CI
   jobs:
   - job: BuildAndPushDocker
     steps:
     - task: Docker@2
-      displayName: Build an image 
+      displayName: Build an image
       inputs:
-        command: build
-        repository: $(imageRepository)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        dockerfile: $(dockerfilePath)
-        tags: $(tag)
+        containerRegistry: 'ACR connection'
+        repository: 'bootcampapp'
+        command: 'build'
+        Dockerfile: '**/Dockerfile'
+        tags: '$(tag)'
     - task: Docker@2
       displayName: Push an image to ACR
       condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
       inputs:
-        command: push
-        repository: $(imageRepository)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        tags: $(tag)
-        
-### Deploying to staging ###
+        containerRegistry: 'ACR connection'
+        repository: 'bootcampapp'
+        command: 'push'
+        tags: '$(tag)'
 - stage: Deploy_to_staging
   variables:
   - group: staging
@@ -38,7 +35,7 @@ stages:
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   jobs:
   - deployment: staging
-    displayName: 'Deploy bootcamp-app' 
+    displayName: 'Deploy bootcamp-app'
     environment:
       name: staging
       resourceType: VirtualMachine
@@ -46,19 +43,19 @@ stages:
       runOnce:
         deploy:
           steps:
-          - script: |
-              rm -rf weight_tracker_ansible
-              git clone https://github.com/kostyaf91/weight_tracker_ansible
+          - task: CmdLine@2
+            inputs:
+              script: |
+                rm -rf weight_tracker_ansible
+                git clone https://github.com/kostyaf91/weight_tracker_ansible
           - task: Ansible@0
             inputs:
               ansibleInterface: 'agentMachine'
               playbookPathOnAgentMachine: 'weight_tracker_ansible/playbook.yml'
               inventoriesAgentMachine: 'file'
               inventoryFileOnAgentMachine: 'weight_tracker_ansible/inventories/staging/inventory'
-              args: '-e "lb-ip=$(lb-ip) okta-id=$(okta-id) okta-secret=$(okta-secret) postgres-pass=$(postgres-pass) vm-pass=$(vm-pass) pgHost=$(pgHost) acrLogin=$(acrLogin) acrPass=$(acrPass) registry=$(registry) tag=$(tag)"'
+              args: '-e "lb_ip=$(lb_ip) okta_id=$(okta_id) okta_secret=$(okta_secret) postgres_pass=$(postgres_pass) vm_pass=$(vm_pass) pgHost=$(pgHost) acrLogin=$(acrLogin) acrPass=$(acrPass) registry=$(registry) tag=$(tag) "'
               failOnStdErr: false
-
-### Deploying to production ###
 - stage: Deploy_to_prod
   variables:
   - group: prod
@@ -66,7 +63,7 @@ stages:
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   jobs:
   - deployment: prod
-    displayName: 'Deploy bootcamp-app' 
+    displayName: 'Deploy bootcamp-app'
     environment:
       name: prod
       resourceType: VirtualMachine
@@ -74,14 +71,17 @@ stages:
       runOnce:
         deploy:
           steps:
-          - script: |
-              rm -rf weight_tracker_ansible
-              git clone https://github.com/kostyaf91/weight_tracker_ansible
+          - task: CmdLine@2
+            inputs:
+              script: |
+                rm -rf weight_tracker_ansible
+                git clone https://github.com/kostyaf91/weight_tracker_ansible
           - task: Ansible@0
             inputs:
               ansibleInterface: 'agentMachine'
               playbookPathOnAgentMachine: 'weight_tracker_ansible/playbook.yml'
               inventoriesAgentMachine: 'file'
               inventoryFileOnAgentMachine: 'weight_tracker_ansible/inventories/prod/inventory'
-              args: '-e "lb-ip=$(lb-ip) okta-id=$(okta-id) okta-secret=$(okta-secret) postgres-pass=$(postgres-pass) vm-pass=$(vm-pass) pgHost=$(pgHost) acrLogin=$(acrLogin) acrPass=$(acrPass) registry=$(registry) tag=$(tag)"'
+              args: '-e "lb_ip=$(lb_ip) okta_id=$(okta_id) okta_secret=$(okta_secret) postgres_pass=$(postgres_pass) vm_pass=$(vm_pass) pgHost=$(pgHost) acrLogin=$(acrLogin) acrPass=$(acrPass) registry=$(registry) tag=$(tag)"'
               failOnStdErr: false
+
