@@ -6,7 +6,8 @@ trigger:
 pool:
   name: bootcampApp-pool
 variables:
-- group: global
+- group: prod
+- group: repo
 stages:
 - stage: CI
   jobs:
@@ -19,7 +20,7 @@ stages:
         repository: 'bootcampapp'
         command: 'build'
         Dockerfile: '**/Dockerfile'
-        tags: '$(tag)'
+        tags: 'latest'
     - task: Docker@2
       displayName: Push an image to ACR
       condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
@@ -27,61 +28,37 @@ stages:
         containerRegistry: 'ACR connection'
         repository: 'bootcampapp'
         command: 'push'
-        tags: '$(tag)'
-- stage: Deploy_to_staging
-  variables:
-  - group: staging
-  - group: repo
+        tags: 'latest'
+- stage: CD
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   jobs:
-  - deployment: staging
-    displayName: 'Deploy bootcamp-app'
-    environment:
-      name: staging
-      resourceType: VirtualMachine
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: CmdLine@2
-            inputs:
-              script: |
-                rm -rf weight_tracker_ansible
-                git clone https://github.com/kostyaf91/weight_tracker_ansible
-          - task: Ansible@0
-            inputs:
-              ansibleInterface: 'agentMachine'
-              playbookPathOnAgentMachine: 'weight_tracker_ansible/playbook.yml'
-              inventoriesAgentMachine: 'file'
-              inventoryFileOnAgentMachine: 'weight_tracker_ansible/inventories/staging/inventory'
-              args: '-e "lb_ip=$(lb_ip) okta_id=$(okta_id) okta_secret=$(okta_secret) postgres_pass=$(postgres_pass) vm_pass=$(vm_pass) pgHost=$(pgHost) acrLogin=$(acrLogin) acrPass=$(acrPass) registry=$(registry) tag=$(tag) "'
-              failOnStdErr: false
-- stage: Deploy_to_prod
-  variables:
-  - group: prod
-  - group: repo
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-  jobs:
-  - deployment: prod
-    displayName: 'Deploy bootcamp-app'
-    environment:
-      name: prod
-      resourceType: VirtualMachine
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: CmdLine@2
-            inputs:
-              script: |
-                rm -rf weight_tracker_ansible
-                git clone https://github.com/kostyaf91/weight_tracker_ansible
-          - task: Ansible@0
-            inputs:
-              ansibleInterface: 'agentMachine'
-              playbookPathOnAgentMachine: 'weight_tracker_ansible/playbook.yml'
-              inventoriesAgentMachine: 'file'
-              inventoryFileOnAgentMachine: 'weight_tracker_ansible/inventories/prod/inventory'
-              args: '-e "lb_ip=$(lb_ip) okta_id=$(okta_id) okta_secret=$(okta_secret) postgres_pass=$(postgres_pass) vm_pass=$(vm_pass) pgHost=$(pgHost) acrLogin=$(acrLogin) acrPass=$(acrPass) registry=$(registry) tag=$(tag)"'
-              failOnStdErr: false
-
+  - job: Deployment
+    displayName: Deployment
+    steps:
+    - task: KubernetesManifest@0
+      displayName: Creating secrets
+      inputs:
+        action: 'createSecret'
+        kubernetesServiceConnection: 'k8s-bootcamp'
+        namespace: 'bootcamp'
+        secretType: 'generic'
+        secretName: 'webapp-secret'
+        secretArguments: '--from-literal=PORT=8080 --from-literal=HOST=0.0.0.0 --from-literal=PGHOST=$(PGHOST) --from-literal=PGUSERNAME=$(PGUSERNAME) --from-literal=PGDATABASE=$(PGDATABASE) --from-literal=PGPASSWORD=$(PGPASSWORD) --from-literal=PGPORT=5432 --from-literal=HOST_URL=$(HOST_URL) --from-literal=COOKIE_ENCRYPT_PWD=$(COOKIE_ENCRYPT_PWD) --from-literal=NODE_ENV=development --from-literal=OKTA_ORG_URL=$(OKTA_URL) --from-literal=OKTA_CLIENT_ID=$(OKTA_ID) --from-literal=OKTA_CLIENT_SECRET=$(OKTA_SECRET)'
+    - task: KubernetesManifest@0
+      displayName: Creating imagePullSecret
+      inputs:
+        action: 'createSecret'
+        kubernetesServiceConnection: 'k8s-bootcamp'
+        namespace: 'bootcamp'
+        secretType: 'dockerRegistry'
+        secretName: 'registry-secret'
+        dockerRegistryEndpoint: 'ACR connection'
+    - task: KubernetesManifest@0
+      displayName: Deploying
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: 'k8s-bootcamp'
+        namespace: 'bootcamp'
+        manifests: '$(Build.SourcesDirectory)/k8s/webapp.yaml'
+        containers: 'kostyaf91bootcampreg.azurecr.io/bootcampapp:latest'
+        imagePullSecrets: 'registry-secret'
