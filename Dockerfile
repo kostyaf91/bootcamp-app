@@ -8,10 +8,6 @@ RUN npm install
 
 RUN npm init -y
 
-#RUN npm run initdb
-	
-#ENV PORT=8080
-	
 EXPOSE 80
 
 ENTRYPOINT [ "npm", "run", "dev" ]
