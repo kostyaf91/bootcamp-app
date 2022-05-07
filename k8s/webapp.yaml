@@ -9,20 +9,17 @@ spec:
     matchLabels:
       app: webapp
   replicas: 3
+  minReadySeconds: 5
   strategy:
     rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
+      maxSurge: 1
+      maxUnavailable: 1
     type: RollingUpdate
   template:
     metadata:
       labels:
         app:  webapp
     spec:
-      # initContainers:
-        # Init containers are exactly like regular containers, except:
-          # - Init containers always run to completion.
-          # - Each init container must complete successfully before the next one starts.
       containers:
       - name:  webapp
         image:  kostyaf91bootcampreg.azurecr.io/bootcampapp:latest
@@ -33,40 +30,9 @@ spec:
           limits:
             cpu: 250m
             memory: 256Mi
-        # livenessProbe:
-        #   tcpSocket:
-        #     port: 80
-        #   initialDelaySeconds: 5
-        #   timeoutSeconds: 5
-        #   successThreshold: 1
-        #   failureThreshold: 3
-        #   periodSeconds: 10
-        # readinessProbe:
-        #   httpGet:
-        #     path: /healthz
-        #     port: 80
-        #   initialDelaySeconds: 5
-        #   timeoutSeconds: 2
-        #   successThreshold: 1
-        #   failureThreshold: 3
-        #   periodSeconds: 10
-        # env:
-        # - name: DB_HOST
-        #   valueFrom:
-        #     configMapKeyRef:
-        #       name: webapp
-        #       key: DB_HOST
         ports:
-        - containerPort:  80
+        - containerPort:  8080
           protocol: TCP
-      #   volumeMounts:
-      #   - name: localtime
-      #     mountPath: /etc/localtime
-      # volumes:
-      #   - name: localtime
-      #     hostPath:
-      #       path: /usr/share/zoneinfo/Asia/Shanghai
-      # restartPolicy: Always
         lifecycle:
           postStart:
             exec:
@@ -83,14 +49,10 @@ spec:
   type: ClusterIP
   selector:
     app: webapp
-  # sessionAffinity: None
-  # sessionAffinityConfig:
-  #   clientIP:
-  #     timeoutSeconds: 10800
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 8080
+      targetPort: 8080
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -108,4 +70,4 @@ spec:
             service:
               name: web-service
               port: 
-                number: 80
+                number: 8080
