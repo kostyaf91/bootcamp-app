@@ -10,7 +10,7 @@ RUN npm init -y
 
 #RUN npm run initdb
 	
-ENV PORT=8080
+#ENV PORT=8080
 	
 EXPOSE 8080
 
