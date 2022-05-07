@@ -12,6 +12,6 @@ RUN npm init -y
 	
 #ENV PORT=8080
 	
-EXPOSE 8080
+EXPOSE 80
 
 ENTRYPOINT [ "npm", "run", "dev" ]
