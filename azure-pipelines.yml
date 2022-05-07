@@ -53,12 +53,6 @@ stages:
         secretType: 'dockerRegistry'
         secretName: 'registry-secret'
         dockerRegistryEndpoint: 'ACR connection'
-    # - task: KubernetesManifest@0
-    #   displayName: Deleting old webapp deploy
-    #   inputs:
-    #     action: 'delete'
-    #     kubernetesServiceConnection: 'k8s-bootcamp'
-    #     arguments: '-f $(Build.SourcesDirectory)/k8s/webapp.yaml'
     - task: KubernetesManifest@0
       displayName: Deploying postgres
       inputs:
