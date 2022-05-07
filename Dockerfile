@@ -4,9 +4,11 @@ WORKDIR /home/ubuntu/myagent/_work/1/s/
 
 COPY . .
 
-RUN npm install &&\
-    npm init -y &&\
-    npm run initdb
+RUN npm install
+
+RUN npm init -y
+
+#RUN npm run initdb
 	
 ENV PORT=8080
 	
