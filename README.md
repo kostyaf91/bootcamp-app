@@ -1,30 +1,21 @@
 # Node.js Weight Tracker
+## This project created with Azure Kubernetes Service
 
-![Demo](docs/build-weight-tracker-app-demo.gif)
+### Install and Configuration
 
-This sample application demonstrates the following technologies.
+1. Install Kubectl and Docker on the agent machine.
+2. Install Azure CLI.
+3. Create AKS in Azure with your subscription (better to connect your ACR to the AKS).
+4. At the end of the creation (or Kubernetes services > Your service > Overview > Connect) follow the commands. 
+5. In Azure Devops create connection to the AKS.
+6. Install NGINX Ingress Controller.
 
-* [hapi](https://hapi.dev) - a wonderful Node.js application framework
-* [PostgreSQL](https://www.postgresql.org/) - a popular relational database
-* [Postgres](https://github.com/porsager/postgres) - a new PostgreSQL client for Node.js
-* [Vue.js](https://vuejs.org/) - a popular front-end library
-* [Bulma](https://bulma.io/) - a great CSS framework based on Flexbox
-* [EJS](https://ejs.co/) - a great template library for server-side HTML templates
+## CI
+At the CI we creating and pushing the docker image to the ACR.
 
-**Requirements:**
-
-* [Node.js](https://nodejs.org/) 14.x
-* [PostgreSQL](https://www.postgresql.org/) (can be installed locally using Docker)
-* [Free Okta developer account](https://developer.okta.com/) for account registration, login
-
-## Install and Configuration
-
-1. Clone or download source files
-1. Run `npm install` to install dependencies
-1. If you don't already have PostgreSQL, set up using Docker
-1. Create a [free Okta developer account](https://developer.okta.com/) and add a web application for this app
-1. Copy `.env.sample` to `.env` and change the `OKTA_*` values to your application
-1. Initialize the PostgreSQL database by running `npm run initdb`
-1. Run `npm run dev` to start Node.js
-
-The associated blog post goes into more detail on how to set up PostgreSQL with Docker and how to configure your Okta account.
+## CD
+At the CD we:
+1. Creating secrets using Azure DevOps library.
+2. Creating dockerRegistry secret.
+3. Deploying PostgreSQL Database and his service to the cluster.
+4. Deploying The application with 3 instances, his service and ingress. 
